@@ -1,4 +1,5 @@
 const express      = require('express');
+const rateLimit    = require('express-rate-limit');
 const validator    = require('../lib/validator');
 const jwtdecode    = require('../lib/express/jwt-decode');
 const userIdFromMe = require('../lib/express/user-id-from-me');
@@ -6,11 +7,18 @@ const internalUser = require('../internal/user');
 const apiValidator = require('../lib/validator/api');
 const schema       = require('../schema');
 
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100 // limit each IP to 100 requests per windowMs
+});
+
 let router = express.Router({
 	caseSensitive: true,
 	strict:        true,
 	mergeParams:   true
 });
+
+router.use(limiter);
 
 /**
  * /api/users
